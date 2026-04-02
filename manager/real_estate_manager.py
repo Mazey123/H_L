@@ -32,9 +32,19 @@ class RealEstateManager:
     def clear_database(self) -> None:
         """Очистка всех таблиц базы данных (для тестов и демонстрации)."""
         # Удаляем данные в порядке, обратном созданию таблиц (из-за FK)
-        self._db.execute("DELETE FROM deals", ())
-        self._db.execute("DELETE FROM clients", ())
-        self._db.execute("DELETE FROM apartments", ())
+        # Используем DELETE FROM только если таблицы существуют
+        try:
+            self._db.execute("DELETE FROM deals", ())
+        except DatabaseError:
+            pass  # Таблица может ещё не существовать
+        try:
+            self._db.execute("DELETE FROM clients", ())
+        except DatabaseError:
+            pass
+        try:
+            self._db.execute("DELETE FROM apartments", ())
+        except DatabaseError:
+            pass
 
     # ==================== Методы для Apartment ====================
 
@@ -400,80 +410,3 @@ class RealEstateManager:
             deal_date=row['deal_date'],
             notes=row['notes'] or ""
         )
-
-    def create_sample_data(self) -> dict[str, list[Any]]:
-        """Создание тестовых данных для демонстрации."""
-        results = {"apartments": [], "clients": [], "deals": []}
-
-        # Создание квартир
-        apts = [
-            Apartment(
-                address="ул. Пушкина, д. 15, кв. 42",
-                city="Москва",
-                district="Центральный",
-                total_area=75.5,
-                living_area=50.0,
-                rooms=2,
-                floor=7,
-                total_floors=12,
-                price=9500000.0,
-                property_type=PropertyType.APARTMENT,
-                description="Уютная квартира near метро"
-            ),
-            Apartment(
-                address="пр. Ленина, д. 88, кв. 101",
-                city="Санкт-Петербург",
-                district="Невский",
-                total_area=45.0,
-                living_area=30.0,
-                rooms=1,
-                floor=10,
-                total_floors=16,
-                price=6200000.0,
-                property_type=PropertyType.STUDIO,
-                description="Светлая студия с видом на город"
-            )
-        ]
-
-        for apt in apts:
-            apt_id = self.add_apartment(apt)
-            results["apartments"].append(apt)
-
-        # Создание клиентов
-        clients = [
-            Client(
-                full_name="Алексеев Алексей Алексеевич",
-                phone="+7(999)111-22-33",
-                email="alexeev@example.com",
-                passport_series="4600",
-                passport_number="654321"
-            ),
-            Client(
-                full_name="Борисова Бориса Борисовна",
-                phone="+7(999)222-33-44",
-                email="borisova@example.com",
-                passport_series="4601",
-                passport_number="765432"
-            )
-        ]
-
-        for client in clients:
-            client_id = self.add_client(client)
-            results["clients"].append(client)
-
-        # Создание сделок
-        if len(results["apartments"]) >= 1 and len(results["clients"]) >= 1:
-            deal = Deal(
-                apartment_id=results["apartments"][0].id,
-                client_id=results["clients"][0].id,
-                deal_type=DealType.SALE,
-                deal_status=DealStatus.ACTIVE,
-                amount=9500000.0,
-                commission_rate=2.5,
-                deal_date="2024-03-15",
-                notes="Предварительный договор"
-            )
-            self.add_deal(deal)
-            results["deals"].append(deal)
-
-        return results
