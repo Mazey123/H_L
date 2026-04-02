@@ -1,109 +1,47 @@
---- .gitignore (原始)
-```
-# Database files
-*.db
-*.sqlite
-*.sqlite3
-
+```gitignore
 # Python
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
 .Python
-env/
 venv/
 .venv/
-.ENV
-.ENV.local
 .env
 .env.local
 .env.*
-.venv/
-venv/
-ENV/
-ENV.local
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
 
 # Logs
 *.log
 
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
+# Temporary files
+*.tmp
+*.temp
+*~
+
+# Coverage
+.coverage
+htmlcov/
+.coverage.*
+coverage.xml
 
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
-*.tmp
+
+# Build
+build/
+dist/
+*.egg-info/
 
 # OS
 .DS_Store
 Thumbs.db
-```
-
-+++ .gitignore (修改后)
-```
-# Database files
-*.db
-*.sqlite
-*.sqlite3
-
-# Python
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-env/
-venv/
-.venv/
-.ENV
-.ENV.local
-.env
-.env.local
-.env.*
-.venv/
-venv/
-ENV/
-ENV.local
-
-# Logs
-*.log
-
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-*.tmp
-
-# Build and distribution
-dist/
-build/
-*.egg-info/
-.coverage
-htmlcov/
-coverage/
-
-# Environment specific
-.envrc
-.env.local
-.env.dev
-.env.prod
 ```
