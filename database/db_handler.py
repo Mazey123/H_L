@@ -1,6 +1,3 @@
-"""
-Модуль работы с базой данных для системы управления недвижимостью.
-"""
 import sqlite3
 from pathlib import Path
 from typing import Optional, Any
@@ -9,18 +6,11 @@ from .errors import DatabaseError
 
 
 class DBHandler:
-    """Класс для обработки соединений с базой данных."""
+
     
     _instance: Optional['DBHandler'] = None
     _connection: Optional[sqlite3.Connection] = None
-    
-    def __new__(cls, db_path: str = "real_estate.db") -> 'DBHandler':
-        """Реализация паттерна Singleton для подключения к БД."""
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-            cls._instance._db_path = db_path
-        return cls._instance
-    
+
     def __init__(self, db_path: str = "real_estate.db"):
         """Инициализация подключения к базе данных."""
         if self._connection is None:
@@ -29,17 +19,15 @@ class DBHandler:
     
     def _connect(self) -> None:
         """Установление соединения с базой данных."""
-        try:
-            db_file = Path(self._db_path)
-            self._connection = sqlite3.connect(
-                str(db_file),
-                check_same_thread=False,
-                isolation_level=None
-            )
-            self._connection.row_factory = sqlite3.Row
-            self._connection.execute("PRAGMA foreign_keys = ON")
-        except sqlite3.Error as e:
-            raise DatabaseError(f"Не удалось подключиться к базе данных: {e}", "connect")
+        db_file = Path(self._db_path)
+        self._connection = sqlite3.connect(
+            str(db_file),
+            check_same_thread=False,
+            isolation_level=None
+        )
+        self._connection.row_factory = sqlite3.Row
+        self._connection.execute("PRAGMA foreign_keys = ON")
+
     
     @property
     def connection(self) -> sqlite3.Connection:
@@ -50,21 +38,18 @@ class DBHandler:
     
     def execute(self, query: str, params: tuple = ()) -> sqlite3.Cursor:
         """Выполнение SQL-запроса."""
-        try:
-            cursor = self.connection.cursor()
-            cursor.execute(query, params)
-            return cursor
-        except sqlite3.Error as e:
-            raise DatabaseError(str(e), "execute")
+        cursor = self.connection.cursor()
+        cursor.execute(query, params)
+        return cursor
+
     
     def executemany(self, query: str, params_list: list[tuple]) -> sqlite3.Cursor:
         """Выполнение SQL-запроса с множеством параметров."""
-        try:
-            cursor = self.connection.cursor()
-            cursor.executemany(query, params_list)
-            return cursor
-        except sqlite3.Error as e:
-            raise DatabaseError(str(e), "executemany")
+
+        cursor = self.connection.cursor()
+        cursor.executemany(query, params_list)
+        return cursor
+
     
     def fetchone(self, query: str, params: tuple = ()) -> Optional[sqlite3.Row]:
         """Получение одной строки результата."""
@@ -88,18 +73,15 @@ class DBHandler:
     
     def commit(self) -> None:
         """Фиксация транзакции."""
-        try:
-            self.connection.commit()
-        except sqlite3.Error as e:
-            raise DatabaseError(str(e), "commit")
+
+        self.connection.commit()
+
     
     def rollback(self) -> None:
         """Откат транзакции."""
-        try:
-            self.connection.rollback()
-        except sqlite3.Error as e:
-            raise DatabaseError(str(e), "rollback")
-    
+
+        self.connection.rollback()
+
     def close(self) -> None:
         """Закрытие соединения с базой данных."""
         if self._connection:
@@ -108,34 +90,31 @@ class DBHandler:
     
     def init_schema(self, schema_sql: str) -> None:
         """Инициализация схемы базы данных из SQL-файла."""
-        try:
-            # Разделяем по точкам с запятой, но учитываем многострочные запросы
-            statements = []
-            current_statement = []
+        # Разделяем по точкам с запятой, но учитываем многострочные запросы
+        statements = []
+        current_statement = []
+        
+        for line in schema_sql.split('\n'):
+            line = line.strip()
+            # Пропускаем комментарии и пустые строки
+            if not line or line.startswith('--'):
+                continue
+            current_statement.append(line)
             
-            for line in schema_sql.split('\n'):
-                line = line.strip()
-                # Пропускаем комментарии и пустые строки
-                if not line or line.startswith('--'):
-                    continue
-                current_statement.append(line)
-                
-                # Если строка заканчивается на ';', завершаем оператор
-                if line.endswith(';'):
-                    statements.append(' '.join(current_statement))
-                    current_statement = []
-            
-            # Добавляем последний оператор если есть
-            if current_statement:
-                last_stmt = ' '.join(current_statement).strip()
-                if last_stmt and not last_stmt.startswith('--'):
-                    statements.append(last_stmt)
-            
-            for statement in statements:
-                statement = statement.strip()
-                if statement:
-                    self.execute(statement)
-            self.commit()
-        except sqlite3.Error as e:
-            self.rollback()
-            raise DatabaseError(f"Ошибка инициализации схемы: {e}", "init_schema")
+            # Если строка заканчивается на ';', завершаем оператор
+            if line.endswith(';'):
+                statements.append(' '.join(current_statement))
+                current_statement = []
+        
+        # Добавляем последний оператор если есть
+        if current_statement:
+            last_stmt = ' '.join(current_statement).strip()
+            if last_stmt and not last_stmt.startswith('--'):
+                statements.append(last_stmt)
+        
+        for statement in statements:
+            statement = statement.strip()
+            if statement:
+                self.execute(statement)
+        self.commit()
+

@@ -1,25 +1,13 @@
-#!/usr/bin/env python3
-"""
-Модуль менеджера для системы управления недвижимостью.
-Обеспечивает взаимодействие с базой данных и объектами моделей.
-"""
 from typing import Optional, Any
-from datetime import datetime
-
 from database.db_handler import DBHandler
 from database.errors import DatabaseError, NotFoundError, ValidationError
 from database.types import DealType, PropertyType, DealStatus
 from models.apartment import Apartment
 from models.client import Client
 from models.deal import Deal
-from models.entity import Entity
 
 
 class RealEstateManager:
-    """
-    Класс-менеджер для управления объектами недвижимости, клиентами и сделками.
-    Реализует CRUD-операции и поиск по критериям.
-    """
 
     def __init__(self, db_path: str = "real_estate.db") -> None:
         """Инициализация менеджера с подключением к БД."""
@@ -29,24 +17,7 @@ class RealEstateManager:
         """Инициализация схемы базы данных."""
         self._db.init_schema(schema_sql)
 
-    def clear_database(self) -> None:
-        """Очистка всех таблиц базы данных (для тестов и демонстрации)."""
-        # Удаляем данные в порядке, обратном созданию таблиц (из-за FK)
-        # Используем DELETE FROM только если таблицы существуют
-        try:
-            self._db.execute("DELETE FROM deals", ())
-        except DatabaseError:
-            pass  # Таблица может ещё не существовать
-        try:
-            self._db.execute("DELETE FROM clients", ())
-        except DatabaseError:
-            pass
-        try:
-            self._db.execute("DELETE FROM apartments", ())
-        except DatabaseError:
-            pass
-
-    # ==================== Методы для Apartment ====================
+    #  Методы для Квартир
 
     def add_apartment(self, apartment: Apartment) -> int:
         """Добавление квартиры в базу данных."""
@@ -54,24 +25,21 @@ class RealEstateManager:
             raise ValidationError("Данные квартиры не прошли валидацию")
 
         query = """
-            INSERT INTO apartments (address, city, district, total_area, living_area,
-                                   rooms, floor, total_floors, price, property_type,
-                                   description, is_available)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO apartments (address, city, total_area,
+                                   rooms, floor, price, property_type,
+                                    is_available)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         """
         params = (
             apartment.address,
             apartment.city,
-            apartment.district,
             apartment.total_area,
-            apartment.living_area,
             apartment.rooms,
             apartment.floor,
-            apartment.total_floors,
             apartment.price,
             apartment.property_type.name,
-            apartment.description,
             1 if apartment.is_available else 0
+            
         )
 
         self._db.execute(query, params)
@@ -103,24 +71,20 @@ class RealEstateManager:
             raise ValidationError("Данные квартиры не прошли валидацию")
 
         query = """
-            UPDATE apartments SET address=?, city=?, district=?, total_area=?,
-                                  living_area=?, rooms=?, floor=?, total_floors=?,
-                                  price=?, property_type=?, description=?,
-                                  is_available=?, updated_at=CURRENT_TIMESTAMP
+            UPDATE apartments SET address=?, city=?, total_area=?,
+                                  rooms=?, floor=?,
+                                  price=?, property_type=?,
+                                  is_available=?
             WHERE id=?
         """
         params = (
             apartment.address,
             apartment.city,
-            apartment.district,
             apartment.total_area,
-            apartment.living_area,
             apartment.rooms,
             apartment.floor,
-            apartment.total_floors,
             apartment.price,
             apartment.property_type.name,
-            apartment.description,
             1 if apartment.is_available else 0,
             apartment.id
         )
@@ -133,7 +97,7 @@ class RealEstateManager:
         query = "DELETE FROM apartments WHERE id = ?"
         cursor = self._db.execute(query, (apartment_id,))
         return cursor.rowcount > 0
-
+    
     def find_apartments_by_criteria(
         self,
         city: Optional[str] = None,
@@ -177,7 +141,7 @@ class RealEstateManager:
         rows = self._db.fetchall(query, tuple(params))
         return [self._row_to_apartment(row) for row in rows]
 
-    # ==================== Методы для Client ====================
+    # Методы для Клиента
 
     def add_client(self, client: Client) -> int:
         """Добавление клиента в базу данных."""
@@ -185,15 +149,13 @@ class RealEstateManager:
             raise ValidationError("Данные клиента не прошли валидацию")
 
         query = """
-            INSERT INTO clients (full_name, phone, email, passport_series, passport_number)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO clients (full_name, phone, email)
+            VALUES (?, ?, ?)
         """
         params = (
             client.full_name,
             client.phone,
             client.email,
-            client.passport_series,
-            client.passport_number
         )
 
         self._db.execute(query, params)
@@ -226,16 +188,12 @@ class RealEstateManager:
 
         query = """
             UPDATE clients SET full_name=?, phone=?, email=?,
-                               passport_series=?, passport_number=?,
-                               updated_at=CURRENT_TIMESTAMP
             WHERE id=?
         """
         params = (
             client.full_name,
             client.phone,
             client.email,
-            client.passport_series,
-            client.passport_number,
             client.id
         )
 
@@ -248,7 +206,7 @@ class RealEstateManager:
         cursor = self._db.execute(query, (client_id,))
         return cursor.rowcount > 0
 
-    # ==================== Методы для Deal ====================
+    #  Методы для сделок
 
     def add_deal(self, deal: Deal) -> int:
         """Добавление сделки в базу данных."""
@@ -257,8 +215,8 @@ class RealEstateManager:
 
         query = """
             INSERT INTO deals (apartment_id, client_id, deal_type, deal_status,
-                              amount, commission_rate, deal_date, notes)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                              amount)
+            VALUES (?, ?, ?, ?, ?)
         """
         params = (
             deal.apartment_id,
@@ -266,9 +224,6 @@ class RealEstateManager:
             deal.deal_type.name,
             deal.deal_status.name,
             deal.amount,
-            deal.commission_rate,
-            deal.deal_date,
-            deal.notes
         )
 
         self._db.execute(query, params)
@@ -301,8 +256,7 @@ class RealEstateManager:
 
         query = """
             UPDATE deals SET apartment_id=?, client_id=?, deal_type=?, deal_status=?,
-                             amount=?, commission_rate=?, deal_date=?, notes=?,
-                             updated_at=CURRENT_TIMESTAMP
+                             amount=?
             WHERE id=?
         """
         params = (
@@ -311,9 +265,6 @@ class RealEstateManager:
             deal.deal_type.name,
             deal.deal_status.name,
             deal.amount,
-            deal.commission_rate,
-            deal.deal_date,
-            deal.notes,
             deal.id
         )
 
@@ -372,15 +323,11 @@ class RealEstateManager:
             id=row['id'],
             address=row['address'],
             city=row['city'],
-            district=row['district'] or "",
             total_area=row['total_area'],
-            living_area=row['living_area'],
             rooms=row['rooms'],
             floor=row['floor'],
-            total_floors=row['total_floors'],
             price=row['price'],
             property_type=PropertyType[row['property_type']],
-            description=row['description'] or "",
             is_available=bool(row['is_available'])
         )
 
@@ -391,8 +338,6 @@ class RealEstateManager:
             full_name=row['full_name'],
             phone=row['phone'],
             email=row['email'] or "",
-            passport_series=row['passport_series'] or "",
-            passport_number=row['passport_number'] or ""
         )
         # Примечание: bonus_points и deal_count не хранятся в БД в данной реализации
         return client
@@ -406,7 +351,4 @@ class RealEstateManager:
             deal_type=DealType[row['deal_type']],
             deal_status=DealStatus[row['deal_status']],
             amount=row['amount'],
-            commission_rate=row['commission_rate'],
-            deal_date=row['deal_date'],
-            notes=row['notes'] or ""
         )

@@ -1,14 +1,9 @@
--- Схема базы данных для системы управления недвижимостью
--- Тема 21: Недвижимость (квартиры/сделки)
-
 -- Таблица клиентов
 CREATE TABLE IF NOT EXISTS clients (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     full_name TEXT NOT NULL,
     phone TEXT NOT NULL,
     email TEXT,
-    passport_series TEXT,
-    passport_number TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -18,15 +13,11 @@ CREATE TABLE IF NOT EXISTS apartments (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     address TEXT NOT NULL,
     city TEXT NOT NULL,
-    district TEXT,
-    total_area REAL NOT NULL,
-    living_area REAL,
+    total_area INTEGER NOT NULL,
     rooms INTEGER NOT NULL DEFAULT 1,
     floor INTEGER NOT NULL,
-    total_floors INTEGER NOT NULL,
     price REAL NOT NULL,
     property_type TEXT NOT NULL DEFAULT 'APARTMENT',
-    description TEXT,
     is_available BOOLEAN DEFAULT 1,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -40,9 +31,6 @@ CREATE TABLE IF NOT EXISTS deals (
     deal_type TEXT NOT NULL,
     deal_status TEXT NOT NULL DEFAULT 'DRAFT',
     amount REAL NOT NULL,
-    commission_rate REAL DEFAULT 2.0,
-    deal_date DATE,
-    notes TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (apartment_id) REFERENCES apartments(id) ON DELETE CASCADE,
