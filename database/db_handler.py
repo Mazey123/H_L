@@ -1,8 +1,7 @@
 import sqlite3
 from pathlib import Path
-from typing import Optional, Any
+from typing import Optional
 
-from .errors import DatabaseError
 
 
 class DBHandler:
