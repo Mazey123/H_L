@@ -1,6 +1,6 @@
 from typing import Optional, Any
 from database.db_handler import DBHandler
-from database.errors import DatabaseError, NotFoundError, ValidationError
+from database.errors import NotFoundError, ValidationError
 from database.types import DealType, PropertyType, DealStatus
 from models.apartment import Apartment
 from models.client import Client

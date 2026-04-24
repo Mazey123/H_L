@@ -3,11 +3,9 @@ import os
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from database.types import DealType, PropertyType, DealStatus
-from database.errors import ValidationError, NotFoundError, DatabaseError
-from models.apartment import Apartment
-from models.client import Client
-from models.deal import Deal
+from database.types import DealStatus
+from database.errors import ValidationError
+from models import Apartment
 from manager.real_estate_manager import RealEstateManager
 
 
