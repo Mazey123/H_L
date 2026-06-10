@@ -57,6 +57,9 @@ class Apartment(Entity):
     # бизнес-метод для отчёта
     def price_per_sqm(self):
         return self._price / self._total_area if self._total_area > 0 else 0
+    
+    def is_on_high_floor(self, threshold=10):
+        return self._floor >= threshold
 
     def get_info(self):
         return f"Кв. {self._address}, {self._city}, {self._rooms}к, {self._total_area}м², {self._price} руб."

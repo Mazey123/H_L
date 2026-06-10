@@ -23,9 +23,14 @@ class Client(Entity):
     @email.setter
     def email(self, v): self._email = v
 
-    # простой бизнес-метод
     def has_phone(self):
         return bool(self._phone)
+    
+    def update_contact(self, phone=None, email=None):
+        if phone:
+            self._phone = phone
+        if email:
+            self._email = email
 
     def get_info(self):
         return f"Клиент {self._name}, тел:{self._phone}, email:{self._email}"
