@@ -2,79 +2,35 @@ from models.entity import Entity
 from database.errors import ValidationError
 
 class Client(Entity):
-    def __init__(
-        self,
-        id: int | None = None,
-        full_name: str = "",
-        phone: str = "",
-        email: str = ""
-    ) -> None:
-        super().__init__(id, full_name)
-        self.__full_name = full_name
-        self.__phone = phone
-        self.__email = email
-        self.__deal_count: int = 0
+    def __init__(self, id=None, name="", phone="", email=""):
+        super().__init__(id, name)
+        self._name = name
+        self._phone = phone
+        self._email = email
 
     @property
-    def full_name(self) -> str:
-        return self.__full_name
-
-    @full_name.setter
-    def full_name(self, value: str) -> None:
-        if not value or len(value) > 100:
-            raise ValidationError("ФИО должно быть от 1 до 100 символов", "full_name")
-        self.__full_name = value
+    def name(self): return self._name
+    @name.setter
+    def name(self, v): self._name = v
 
     @property
-    def phone(self) -> str:
-        return self.__phone
-
+    def phone(self): return self._phone
     @phone.setter
-    def phone(self, value: str) -> None:
-        if not value or len(value) > 20:
-            raise ValidationError("Некорректный номер телефона", "phone")
-        self.__phone = value
+    def phone(self, v): self._phone = v
 
     @property
-    def email(self) -> str:
-        return self.__email
-
+    def email(self): return self._email
     @email.setter
-    def email(self, value: str) -> None:
-        if value and '@' not in value:
-            raise ValidationError("Некорректный email", "email")
-        self.__email = value[:100] if value else ""
+    def email(self, v): self._email = v
 
-    @property
-    def deal_count(self) -> int:
-        return self.__deal_count
+    # простой бизнес-метод
+    def has_phone(self):
+        return bool(self._phone)
 
-    def add_deal_count(self) -> None:
-        self.__deal_count += 1
+    def get_info(self):
+        return f"Клиент {self._name}, тел:{self._phone}, email:{self._email}"
 
-    def get_client_status(self) -> str:
-        if self.__deal_count == 0:
-            return "Новый"
-        elif self.__deal_count <= 2:
-            return "Постоянный"
-        elif self.__deal_count <= 5:
-            return "Лега"
-        else:
-            return "Откуда деньги?"
-
-    def get_info(self) -> str:
-        return (
-            f"Клиент: {self.__full_name}\n"
-            f"Телефон: {self.__phone}\n"
-            f"Email: {self.__email or 'Не указан'}\n"
-            f"Статус: {self.get_client_status()}"
-        )
-
-    def validate(self) -> bool:
-        if not self.__full_name:
-            raise ValidationError("ФИО обязательно", "full_name")
-        if not self.__phone:
-            raise ValidationError("Телефон обязателен", "phone")
-        if self.__email and '@' not in self.__email:
-            raise ValidationError("Некорректный email", "email")
+    def validate(self):
+        if not self._name:
+            raise ValidationError("Имя пустое")
         return True
