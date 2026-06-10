@@ -27,7 +27,7 @@ def main():
         print(f"Новый статус: {deal.deal_status.value}")
 
     # поиск
-    found = mgr.find_apartments_by_city("Москва")
+    found = mgr.find_apartments_by_city("Максаковка")
     print(f"\nКвартиры в Москве: {len(found)}")
     for a in found:
         print(a.get_info())
