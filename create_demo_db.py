@@ -13,9 +13,9 @@ def init_demo(db_path="real_estate_demo.db"):
         manager.init_db(f.read())
 
     # квартиры
-    a1 = Apartment(address="ул. Колотушкина 15", city="Сыктывкар", total_area=75, rooms=2, floor=12, price=9500000)
-    a2 = Apartment(address="пр. Сушкина 88", city="Эжва", total_area=45, rooms=1, floor=10, price=6200000)
-    a3 = Apartment(address="ул. Кукушкина 7", city="Максаковка", total_area=120, rooms=3, floor=5, price=12500000)
+    a1 = Apartment(address="ул. Колотушкина 15", city="Сыктывкар", total_area=75, rooms=2, floor=11, price=9500000)
+    a2 = Apartment(address="пр. Сушкина 88", city="Эжва", total_area=45, rooms=1, floor=1, price=6200000)
+    a3 = Apartment(address="ул. Кукушкина 7", city="Максаковка", total_area=120, rooms=7, floor=5, price=12500000)
     manager.add_apartment(a1)
     manager.add_apartment(a2)
     manager.add_apartment(a3)

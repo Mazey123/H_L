@@ -11,12 +11,14 @@ def main():
         print(c.get_info())
     print("\n--- Сделки ---")
     for d in mgr.get_all_deals():
-        print(d.get_info())
+        print(d.get_info(mgr))
 
     # бизнес-методы
-    apt = mgr.get_apartment(1)
+    apt = mgr.get_apartment(2)
     if apt:
         print(f"\nЦена за м²: {apt.price_per_sqm():.2f}")
+    if apt:
+        print(f"На высоком этаже? {apt.is_on_high_floor()}")
 
     deal = mgr.get_deal(2)
     if deal:

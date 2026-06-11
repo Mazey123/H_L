@@ -49,8 +49,11 @@ class Deal(Entity):
             return True
         return False
 
-    def get_info(self):
-        return f"Сделка {self.id}: кв.{self._apartment_id}, клиент {self._client_id}, {self._amount} руб., статус {self._deal_status.value}"
+    def get_info(self, manager=None):
+        if manager:
+            client = manager.get_client(self._client_id)
+            client_name = client.name if client else "Неизвестный"
+            return f"Сделка {self.id}: кв.{self._apartment_id}, клиент {client_name}, {self._amount} руб., статус {self._deal_status.value}"
 
     def validate(self):
         if not self._apartment_id or not self._client_id:

@@ -62,7 +62,7 @@ class Apartment(Entity):
         return self._floor >= threshold
 
     def get_info(self):
-        return f"Кв. {self._address}, {self._city}, {self._rooms}к, {self._total_area}м², {self._price} руб."
+        return f"Кв. {self._address}, {self._city}, {self._rooms}к, Этаж {self.floor}, {self._total_area}м², {self._price} руб."
 
     def validate(self):
         if not self._address:
